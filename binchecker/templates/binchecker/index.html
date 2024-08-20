@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIN Checker - Validate and Get Detailed BIN Information</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Use our BIN Checker to validate and retrieve detailed information about Bank Identification Numbers (BIN). Instantly find out the issuer, country, and other key details.">
+    <meta name="keywords" content="BIN checker, BIN lookup, bank identification number, card validation, issuer information, credit card checker, debit card checker, prepaid card checker">
+    <meta name="author" content="Your Company Name">
+    
+    <!-- Open Graph Meta Tags (for social media sharing) -->
+    <meta property="og:title" content="BIN Checker - Validate and Get Detailed BIN Information">
+    <meta property="og:description" content="Use our BIN Checker to validate and retrieve detailed information about Bank Identification Numbers (BIN). Instantly find out the issuer, country, and other key details.">
+    <meta property="og:image" content="https://yourwebsite.com/path-to-image.jpg">
+    <meta property="og:url" content="https://yourwebsite.com/bin-checker">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="BIN Checker - Validate and Get Detailed BIN Information">
+    <meta name="twitter:description" content="Use our BIN Checker to validate and retrieve detailed information about Bank Identification Numbers (BIN). Instantly find out the issuer, country, and other key details.">
+    <meta name="twitter:image" content="https://yourwebsite.com/path-to-image.jpg">
+    
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-8">
+        <h1 class="text-4xl font-bold text-center mb-8">BIN Checker</h1>
+        
+        <form method="POST" id="bin-form" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="bin" class="block text-gray-700 text-sm font-bold mb-2">Enter BIN:</label>
+                <input type="text" id="bin" name="bin" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div class="flex items-center justify-between">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Check BIN</button>
+            </div>
+        </form>
+
+        <div id="result" class="bg-white shadow-md rounded px-8 pt-6 pb-8">
+            {% if result %}
+                <h2 class="text-2xl font-semibold mb-4">BIN Information:</h2>
+                <pre class="bg-gray-100 p-4 rounded">{{ result|safe }}</pre>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('bin-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const bin = document.getElementById('bin').value;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            const response = await fetch("{% url 'check_bin' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ bin })
+            });
+            
+            const data = await response.json();
+
+            if (data.success) {
+                const binInfo = data.BIN;
+                const issuer = binInfo.issuer;
+                const country = binInfo.country;
+
+                document.getElementById('result').innerHTML = `
+                    <h2 class="text-2xl font-semibold mb-4">BIN Information:</h2>
+                    <p><strong>Valid:</strong> ${binInfo.valid}</p>
+                    <p><strong>Number:</strong> ${binInfo.number}</p>
+                    <p><strong>Length:</strong> ${binInfo.length}</p>
+                    <p><strong>Scheme:</strong> ${binInfo.scheme}</p>
+                    <p><strong>Brand:</strong> ${binInfo.brand}</p>
+                    <p><strong>Type:</strong> ${binInfo.type}</p>
+                    <p><strong>Level:</strong> ${binInfo.level}</p>
+                    <p><strong>Is Commercial:</strong> ${binInfo.is_commercial}</p>
+                    <p><strong>Is Prepaid:</strong> ${binInfo.is_prepaid}</p>
+                    <p><strong>Currency:</strong> ${binInfo.currency}</p>
+                    <h3 class="text-xl font-semibold mt-4">Issuer Information</h3>
+                    <p><strong>Name:</strong> ${issuer.name}</p>
+                    <p><strong>Website:</strong> <a href="${issuer.website}" target="_blank" class="text-blue-500 hover:underline">${issuer.website}</a></p>
+                    <p><strong>Phone:</strong> ${issuer.phone}</p>
+                    <h3 class="text-xl font-semibold mt-4">Country Information</h3>
+                    <p><strong>Name:</strong> ${country.name} (${country.native})</p>
+                    <p><strong>Flag:</strong> ${country.flag}</p>
+                    <p><strong>Capital:</strong> ${country.capital}</p>
+                    <p><strong>Currency:</strong> ${country.currency_name} (${country.currency_symbol})</p>
+                    <p><strong>Region:</strong> ${country.region}</p>
+                    <p><strong>Subregion:</strong> ${country.subregion}</p>
+                    <p><strong>Language:</strong> ${country.language} (${country.language_code})</p>
+                `;
+            } else {
+                document.getElementById('result').innerHTML = '<p class="text-red-500">Error retrieving BIN information.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
