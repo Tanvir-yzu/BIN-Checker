@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Screenshot</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full">
+        <h1 class="text-2xl font-bold text-center mb-6">Capture Website Screenshot</h1>
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="website_url" class="block text-sm font-medium text-gray-700">Enter a website URL:</label>
+                <input type="text" id="website_url" name="website_url" placeholder="Enter your Website" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow hover:bg-indigo-700 transition">Capture Screenshot</button>
+        </form>
+
+        {% if screenshot_url %}
+            <div class="mt-6 text-center">
+                <h2 class="text-lg font-semibold text-gray-800">Screenshot of {{ website_url }}</h2>
+                <img src="{{ screenshot_url }}" alt="Website Screenshot" class="mt-4 max-w-full h-auto rounded-md shadow-md">
+                <a href="{% url 'download_screenshot' %}?url={{ screenshot_url }}" class="inline-block mt-4 bg-green-500 text-white py-2 px-4 rounded-md shadow hover:bg-green-600 transition">Download Screenshot</a>
+            </div>
+        {% else %}
+            {% if website_url %}
+                <p class="mt-6 text-center text-red-500">Screenshot could not be retrieved for {{ website_url }}.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+</body>
+</html>

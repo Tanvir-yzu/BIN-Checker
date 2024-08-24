@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Page</title>
+</head>
+<body>
+    <h1>Search Results</h1>
+    <form method="get" action="{% url 'search_view' %}">
+        <input type="text" name="q" placeholder="Search..." value="{{ query }}">
+        <button type="submit">Search</button>
+    </form>
+    
+    {% if results %}
+        <h2>Results for "{{ query }}":</h2>
+        <ul>
+            {% for result in results %}
+                <li>
+                    <h3>{{ result.knowledge.description }}</h3>
+                    <p><strong>Address:</strong> <a href="{{ result.knowledge.facts.0.key_link }}">{{ result.knowledge.address }}</a></p>
+                    <p><strong>Province:</strong> 
+                        <a href="{{ result.knowledge.facts.1.value.0.link }}">
+                            {{ result.knowledge.facts.1.value.0.text }}
+                        </a>
+                    </p>
+                    <p><strong>Source:</strong> <a href="{{ result.knowledge.description_link }}">{{ result.knowledge.description_source }}</a></p>
+                    <p><strong>World Ranking:</strong> 716</p>
+                    <p><strong>Country Ranking:</strong> 68</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif query %}
+        <p>No results found for "{{ query }}"</p>
+    {% endif %}
+</body>
+</html>

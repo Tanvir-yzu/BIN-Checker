@@ -38,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'binchecker',
+    'verification',
+    'emotion',
+    'screenshot_app',
+    'search_app',
 ]
 
 MIDDLEWARE = [
